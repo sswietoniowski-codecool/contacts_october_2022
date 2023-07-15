@@ -1,4 +1,5 @@
-﻿using Contacts.WebAPI.Infrastructure;
+﻿using Contacts.WebAPI.DTOs;
+using Contacts.WebAPI.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Contacts.WebAPI.Controllers;
@@ -15,10 +16,16 @@ public class ContactsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public ActionResult<IEnumerable<ContactDto>> GetAll()
     {
-        return new JsonResult(
-            _dataService.Contacts
-        );
+        var contactsDto = _dataService.Contacts.Select(c => new ContactDto()
+        {
+            Id = c.Id,
+            FirstName = c.FirstName,
+            LastName = c.LastName,
+            Email = c.Email
+        });
+
+        return Ok(contactsDto);
     }
 }
