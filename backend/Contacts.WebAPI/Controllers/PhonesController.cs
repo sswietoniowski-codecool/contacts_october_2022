@@ -1,6 +1,7 @@
 ﻿using Contacts.WebAPI.DTOs;
 using Contacts.WebAPI.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Contacts.WebAPI.Controllers
 {
@@ -9,17 +10,19 @@ namespace Contacts.WebAPI.Controllers
     public class PhonesController : ControllerBase
     {
         private readonly DataService _dataService;
+        private readonly ContactsDbContext _dbContext;
 
-        public PhonesController(DataService dataService)
+        public PhonesController(DataService dataService, ContactsDbContext dbContext)
         {
             _dataService = dataService;
+            _dbContext = dbContext;
         }
 
         // GET api/contacts/1/phones
         [HttpGet]
         public ActionResult<IEnumerable<PhoneDto>> GetPhones(int contactId)
         {
-            var contact = _dataService.Contacts
+            var contact = _dbContext.Contacts.Include(c => c.Phones)
                 .FirstOrDefault(c => c.Id == contactId);
 
             if (contact is null)
@@ -42,16 +45,15 @@ namespace Contacts.WebAPI.Controllers
         [HttpGet("{phoneId:int}")]
         public ActionResult<PhoneDto> GetPhone(int contactId, int phoneId)
         {
-            var contact = _dataService.Contacts
-                .FirstOrDefault(c => c.Id == contactId);
+            var phones = _dbContext.Phones
+                .Where(p => p.ContactId == contactId && p.Id == phoneId);
 
-            if (contact is null)
+            if (!phones.Any())
             {
                 return NotFound();
             }
 
-            var phoneDto = contact.Phones
-                .Where(p => p.Id == phoneId)
+            var phoneDto = phones
                 .Select(p => new PhoneDto()
                 {
                     Id = p.Id,
