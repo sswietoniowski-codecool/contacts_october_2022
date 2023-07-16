@@ -1,9 +1,8 @@
 ﻿using Contacts.WebAPI.Domain;
 using Contacts.WebAPI.DTOs;
-using Contacts.WebAPI.Infrastructure;
+using Contacts.WebAPI.Infrastructure.Repositories;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Contacts.WebAPI.Controllers;
 
@@ -11,11 +10,11 @@ namespace Contacts.WebAPI.Controllers;
 [Route("api/contacts")]
 public class ContactsController : ControllerBase
 {
-    private readonly ContactsDbContext _dbContext;
+    private readonly IContactsRepository _repository;
 
-    public ContactsController(ContactsDbContext dbContext)
+    public ContactsController(IContactsRepository repository)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
     // GET api/contacts?search=ski
@@ -24,14 +23,9 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult<IEnumerable<ContactDto>> GetContacts([FromQuery] string? search)
     {
-        var query = _dbContext.Contacts.AsQueryable();
+        var contacts = _repository.GetContacts(search);
 
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            query = query.Where(c => c.LastName.Contains(search));
-        }
-
-        var contactsDto = query
+        var contactsDto = contacts
             .Select(c => new ContactDto()
             {
                 Id = c.Id,
@@ -51,8 +45,7 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult<ContactDetailsDto> GetContact(int id)
     {
-        var contact = _dbContext.Contacts.Include(c => c.Phones)
-            .FirstOrDefault(c => c.Id == id);
+        var contact = _repository.GetContact(id);
 
         if (contact is null)
         {
@@ -103,8 +96,7 @@ public class ContactsController : ControllerBase
             Email = contactForCreationDto.Email
         };
 
-        _dbContext.Contacts.Add(contact);
-        _dbContext.SaveChanges();
+        _repository.CreateContact(contact);
 
         var contactDto = new ContactDto()
         {
@@ -125,19 +117,20 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult UpdateContact(int id, [FromBody] ContactForUpdateDto contactForUpdateDto)
     {
-        var contact = _dbContext
-            .Contacts
-            .FirstOrDefault(c => c.Id == id);
+        var contact = new Contact
+        {
+            Id = id,
+            FirstName = contactForUpdateDto.FirstName,
+            LastName = contactForUpdateDto.LastName,
+            Email = contactForUpdateDto.Email
+        };
 
-        if (contact is null)
+        var success = _repository.UpdateContact(contact);
+
+        if (!success)
         {
             return NotFound();
         }
-
-        contact.FirstName = contactForUpdateDto.FirstName;
-        contact.LastName = contactForUpdateDto.LastName;
-        contact.Email = contactForUpdateDto.Email;
-        _dbContext.SaveChanges();
 
         return NoContent();
     }
@@ -149,17 +142,12 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult DeleteContact(int id)
     {
-        var contact = _dbContext
-            .Contacts
-            .FirstOrDefault(c => c.Id == id);
+        var success = _repository.DeleteContact(id);
 
-        if (contact is null)
+        if (!success)
         {
             return NotFound();
         }
-
-        _dbContext.Contacts.Remove(contact);
-        _dbContext.SaveChanges();
 
         return NoContent();
     }
@@ -172,9 +160,7 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult PartiallyUpdateContact(int id, [FromBody] JsonPatchDocument<ContactForUpdateDto> patchDocument)
     {
-        var contact = _dbContext
-            .Contacts
-            .FirstOrDefault(c => c.Id == id);
+        var contact = _repository.GetContact(id);
 
         if (contact is null)
         {
@@ -203,7 +189,13 @@ public class ContactsController : ControllerBase
         contact.FirstName = contactToBePatched.FirstName;
         contact.LastName = contactToBePatched.LastName;
         contact.Email = contactToBePatched.Email;
-        _dbContext.SaveChanges();
+
+        var success = _repository.UpdateContact(contact);
+
+        if (!success)
+        {
+            return NotFound();
+        }
 
         return NoContent();
     }

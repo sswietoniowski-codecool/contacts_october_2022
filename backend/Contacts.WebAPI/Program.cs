@@ -1,4 +1,5 @@
 using Contacts.WebAPI.Infrastructure;
+using Contacts.WebAPI.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,8 @@ builder.Services.AddDbContext<ContactsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ContactsDb"));
     options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
 });
+
+builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
