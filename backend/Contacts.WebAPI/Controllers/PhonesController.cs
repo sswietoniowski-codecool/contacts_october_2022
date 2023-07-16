@@ -9,12 +9,10 @@ namespace Contacts.WebAPI.Controllers
     [Route("api/contacts/{contactId:int}/phones")]
     public class PhonesController : ControllerBase
     {
-        private readonly DataService _dataService;
         private readonly ContactsDbContext _dbContext;
 
-        public PhonesController(DataService dataService, ContactsDbContext dbContext)
+        public PhonesController(ContactsDbContext dbContext)
         {
-            _dataService = dataService;
             _dbContext = dbContext;
         }
 

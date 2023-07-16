@@ -11,8 +11,6 @@ builder.Services.AddDbContext<ContactsDbContext>(options =>
     options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
 });
 
-builder.Services.AddSingleton<DataService>();
-
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
