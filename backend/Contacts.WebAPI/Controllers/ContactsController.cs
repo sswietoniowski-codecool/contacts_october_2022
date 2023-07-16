@@ -10,12 +10,10 @@ namespace Contacts.WebAPI.Controllers;
 [Route("api/contacts")]
 public class ContactsController : ControllerBase
 {
-    private readonly DataService _dataService;
     private readonly ContactsDbContext _dbContext;
 
-    public ContactsController(DataService dataService, ContactsDbContext dbContext)
+    public ContactsController(ContactsDbContext dbContext)
     {
-        _dataService = dataService;
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
@@ -105,7 +103,7 @@ public class ContactsController : ControllerBase
     [HttpPut("{id:int}")]
     public IActionResult UpdateContact(int id, [FromBody] ContactForUpdateDto contactForUpdateDto)
     {
-        var contact = _dataService
+        var contact = _dbContext
             .Contacts
             .FirstOrDefault(c => c.Id == id);
 
@@ -117,6 +115,7 @@ public class ContactsController : ControllerBase
         contact.FirstName = contactForUpdateDto.FirstName;
         contact.LastName = contactForUpdateDto.LastName;
         contact.Email = contactForUpdateDto.Email;
+        _dbContext.SaveChanges();
 
         return NoContent();
     }
@@ -144,7 +143,7 @@ public class ContactsController : ControllerBase
     [HttpPatch("{id:int}")]
     public IActionResult PartiallyUpdateContact(int id, [FromBody] JsonPatchDocument<ContactForUpdateDto> patchDocument)
     {
-        var contact = _dataService
+        var contact = _dbContext
             .Contacts
             .FirstOrDefault(c => c.Id == id);
 
@@ -175,6 +174,7 @@ public class ContactsController : ControllerBase
         contact.FirstName = contactToBePatched.FirstName;
         contact.LastName = contactToBePatched.LastName;
         contact.Email = contactToBePatched.Email;
+        _dbContext.SaveChanges();
 
         return NoContent();
     }
