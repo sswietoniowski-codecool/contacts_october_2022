@@ -25,7 +25,7 @@ builder.Services.AddCors(options =>
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader();
-    });    
+    });
 });
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
