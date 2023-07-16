@@ -60,14 +60,16 @@ public class ContactsController : ControllerBase
             FirstName = contact.FirstName,
             LastName = contact.LastName,
             Email = contact.Email,
-            Phones = contact.Phones
+        };
+
+        contactDto.Phones = contact.Phones
             .Select(p => new PhoneDto()
             {
                 Id = p.Id,
                 Number = p.Number,
                 Description = p.Description
-            }).ToList()
-        };
+            }).ToList();
+
 
         return Ok(contactDto);
     }
