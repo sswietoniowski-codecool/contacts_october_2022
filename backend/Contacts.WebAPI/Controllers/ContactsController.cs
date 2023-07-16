@@ -70,22 +70,11 @@ public class ContactsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var contact = new Contact()
-        {
-            FirstName = contactForCreationDto.FirstName,
-            LastName = contactForCreationDto.LastName,
-            Email = contactForCreationDto.Email
-        };
+        var contact = _mapper.Map<Contact>(contactForCreationDto);
 
         _repository.CreateContact(contact);
 
-        var contactDto = new ContactDto()
-        {
-            Id = contact.Id,
-            FirstName = contact.FirstName,
-            LastName = contact.LastName,
-            Email = contact.Email
-        };
+        var contactDto = _mapper.Map<ContactDto>(contact);
 
         return CreatedAtAction(nameof(GetContact), new { id = contact.Id }, contactDto);
     }
@@ -98,13 +87,8 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult UpdateContact(int id, [FromBody] ContactForUpdateDto contactForUpdateDto)
     {
-        var contact = new Contact
-        {
-            Id = id,
-            FirstName = contactForUpdateDto.FirstName,
-            LastName = contactForUpdateDto.LastName,
-            Email = contactForUpdateDto.Email
-        };
+        var contact = _mapper.Map<Contact>(contactForUpdateDto);
+        contact.Id = id;
 
         var success = _repository.UpdateContact(contact);
 
@@ -148,12 +132,7 @@ public class ContactsController : ControllerBase
             return NotFound();
         }
 
-        var contactToBePatched = new ContactForUpdateDto()
-        {
-            FirstName = contact.FirstName,
-            LastName = contact.LastName,
-            Email = contact.Email
-        };
+        var contactToBePatched = _mapper.Map<ContactForUpdateDto>(contact);
 
         patchDocument.ApplyTo(contactToBePatched, ModelState);
 
@@ -167,9 +146,7 @@ public class ContactsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        contact.FirstName = contactToBePatched.FirstName;
-        contact.LastName = contactToBePatched.LastName;
-        contact.Email = contactToBePatched.Email;
+        _mapper.Map(contactToBePatched, contact);
 
         var success = _repository.UpdateContact(contact);
 
