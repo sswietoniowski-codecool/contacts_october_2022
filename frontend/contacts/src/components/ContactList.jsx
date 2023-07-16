@@ -9,14 +9,7 @@ const ContactList = () => {
   }, []);
 
   const fetchContacts = async () => {
-    const response = await fetch('https://localhost:5001/api/contacts', {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
+    const response = await fetch('https://localhost:5001/api/contacts');
     const data = await response.json();
     setContacts(data);
     setIsLoading(false);
