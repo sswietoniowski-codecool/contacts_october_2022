@@ -3,69 +3,68 @@ using Contacts.WebAPI.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Contacts.WebAPI.Controllers
+namespace Contacts.WebAPI.Controllers;
+
+[ApiController]
+[Route("api/contacts/{contactId:int}/phones")]
+public class PhonesController : ControllerBase
 {
-    [ApiController]
-    [Route("api/contacts/{contactId:int}/phones")]
-    public class PhonesController : ControllerBase
+    private readonly ContactsDbContext _dbContext;
+
+    public PhonesController(ContactsDbContext dbContext)
     {
-        private readonly ContactsDbContext _dbContext;
+        _dbContext = dbContext;
+    }
 
-        public PhonesController(ContactsDbContext dbContext)
+    // GET api/contacts/1/phones
+    [HttpGet]
+    public ActionResult<IEnumerable<PhoneDto>> GetPhones(int contactId)
+    {
+        var contact = _dbContext.Contacts.Include(c => c.Phones)
+            .FirstOrDefault(c => c.Id == contactId);
+
+        if (contact is null)
         {
-            _dbContext = dbContext;
+            return NotFound();
         }
-
-        // GET api/contacts/1/phones
-        [HttpGet]
-        public ActionResult<IEnumerable<PhoneDto>> GetPhones(int contactId)
-        {
-            var contact = _dbContext.Contacts.Include(c => c.Phones)
-                .FirstOrDefault(c => c.Id == contactId);
-
-            if (contact is null)
-            {
-                return NotFound();
-            }
             
-            var phonesDto = contact.Phones
-                .Select(p => new PhoneDto()
-                {
-                    Id = p.Id,
-                    Number = p.Number,
-                    Description = p.Description
-                });
+        var phonesDto = contact.Phones
+            .Select(p => new PhoneDto()
+            {
+                Id = p.Id,
+                Number = p.Number,
+                Description = p.Description
+            });
 
-            return Ok(phonesDto);
-        }
+        return Ok(phonesDto);
+    }
 
-        // GET api/contacts/1/phones/1
-        [HttpGet("{phoneId:int}")]
-        public ActionResult<PhoneDto> GetPhone(int contactId, int phoneId)
+    // GET api/contacts/1/phones/1
+    [HttpGet("{phoneId:int}")]
+    public ActionResult<PhoneDto> GetPhone(int contactId, int phoneId)
+    {
+        var phones = _dbContext.Phones
+            .Where(p => p.ContactId == contactId && p.Id == phoneId);
+
+        if (!phones.Any())
         {
-            var phones = _dbContext.Phones
-                .Where(p => p.ContactId == contactId && p.Id == phoneId);
-
-            if (!phones.Any())
-            {
-                return NotFound();
-            }
-
-            var phoneDto = phones
-                .Select(p => new PhoneDto()
-                {
-                    Id = p.Id,
-                    Number = p.Number,
-                    Description = p.Description
-                })
-                .FirstOrDefault();
-
-            if (phoneDto is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(phoneDto);
+            return NotFound();
         }
+
+        var phoneDto = phones
+            .Select(p => new PhoneDto()
+            {
+                Id = p.Id,
+                Number = p.Number,
+                Description = p.Description
+            })
+            .FirstOrDefault();
+
+        if (phoneDto is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(phoneDto);
     }
 }
