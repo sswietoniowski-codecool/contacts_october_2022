@@ -1,5 +1,5 @@
 @baseUri = http://localhost:5000/api
-@id = 1
+@id = 10
 
 ### Get all contacts
 
