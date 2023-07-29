@@ -32,11 +32,15 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policyBuilder =>
     {
-        var origins = builder.Configuration.GetSection("Cors:Origins")
-            .Get<string[]>()!;
+        //var origins = builder.Configuration.GetSection("Cors:Origins")
+        //    .Get<string[]>()!;
+
+        var origins = new List<string>();
+
+        builder.Configuration.Bind("Cors:Origins", origins);
 
         policyBuilder
-            .WithOrigins(origins)
+            .WithOrigins(origins.ToArray())
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
