@@ -39,6 +39,8 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    //[ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
+    [ResponseCache(CacheProfileName = "Any-60")]
     public ActionResult<ContactDetailsDto> GetContact(int id)
     {
         var contact = _repository.GetContact(id);

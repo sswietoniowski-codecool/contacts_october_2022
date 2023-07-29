@@ -1,7 +1,8 @@
-using System.Reflection;
 using Contacts.WebAPI.Infrastructure;
 using Contacts.WebAPI.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,16 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
+builder.Services.AddControllers(configure =>
+{
+    configure.CacheProfiles.Add("Any-60",
+        new CacheProfile
+        {
+            Location = ResponseCacheLocation.Any,
+            Duration = 60
+        });
+    configure.CacheProfiles.Add("NoCache", new CacheProfile { NoStore = true });
+}).AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
