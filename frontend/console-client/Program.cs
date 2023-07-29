@@ -1,39 +1,36 @@
 ﻿// CRUD
 
+using System.Text;
 using System.Text.Json;
 using Contacts.Client.DTOs;
 
 var httpClient = new HttpClient();
+httpClient.BaseAddress = new Uri("https://localhost:5001");
 
-Console.WriteLine("GetContacts:\n");
+Console.WriteLine("CreateContact:\n");
 
-var response = await httpClient.GetAsync("https://localhost:5001/api/contacts");
+var contactForCreationDto = new ContactForCreationDto
+{
+    FirstName = "John",
+    LastName = "Doe",
+    Email = "jdoe@unknown.com"
+};
+
+var contactForCreationDtoJson = JsonSerializer.Serialize(contactForCreationDto);
+
+var request = new HttpRequestMessage(HttpMethod.Post, "api/contacts");
+request.Content = new StringContent(contactForCreationDtoJson, Encoding.UTF8, "application/json");
+
+var response = await httpClient.SendAsync(request);
 
 response.EnsureSuccessStatusCode();
 
-var content = await response.Content.ReadAsStringAsync();
+var createdContactJson = await response.Content.ReadAsStringAsync();
 
 var jsonSerializerOptions = new JsonSerializerOptions
 {
     PropertyNameCaseInsensitive = true
 };
-var contacts = JsonSerializer.Deserialize<List<ContactDto>>(content, jsonSerializerOptions);
-contacts ??= new List<ContactDto>();
+var createdContact = JsonSerializer.Deserialize<ContactDto>(createdContactJson, jsonSerializerOptions);
 
-foreach (var contact in contacts)
-{
-    Console.WriteLine($"{contact.Id} {contact.FirstName} {contact.LastName} {contact.Email}");
-}
-
-Console.WriteLine("\nGetContact:\n");
-
-var id = 1;
-response = await httpClient.GetAsync($"https://localhost:5001/api/contacts/{id}");
-
-response.EnsureSuccessStatusCode();
-
-content = await response.Content.ReadAsStringAsync();
-
-var contactDto = JsonSerializer.Deserialize<ContactDetailsDto>(content);
-
-Console.WriteLine($"{contactDto.Id} {contactDto.FirstName} {contactDto.LastName} {contactDto.Email}");
+Console.WriteLine($"{createdContact.Id} {createdContact.FirstName} {createdContact.LastName}");

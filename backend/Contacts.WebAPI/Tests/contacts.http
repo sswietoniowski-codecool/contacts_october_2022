@@ -8,3 +8,14 @@ GET {{baseUri}}/contacts HTTP/1.1
 ### Get single contact
 
 GET {{baseUri}}/contacts/{{id}} HTTP/1.1
+
+
+### Create contact
+POST {{baseUri}}/contacts HTTP/1.1
+Content-Type: application/json
+
+{
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "email": "asmith@unknown.com"
+}
