@@ -16,13 +16,15 @@ public class ContactsController : ControllerBase
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly ILogger<ContactsController> _logger;
+    private readonly IConfiguration _configuration;
 
-    public ContactsController(IContactsRepository repository, IMapper mapper, IMemoryCache memoryCache, ILogger<ContactsController> logger)
+    public ContactsController(IContactsRepository repository, IMapper mapper, IMemoryCache memoryCache, ILogger<ContactsController> logger, IConfiguration configuration)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        _mapper = mapper;
-        _memoryCache = memoryCache;
-        _logger = logger;
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     // GET api/contacts?search=ski
@@ -31,6 +33,18 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult<IEnumerable<ContactDto>> GetContacts([FromQuery] string? search)
     {
+        var origins = new List<string>();
+        _configuration.Bind("Cors:Origins", origins);
+
+        if (origins.Contains(Request.Headers["Origin"].ToString()))
+        {
+            _logger.LogInformation($"Request from {Request.Headers["Origin"]} is allowed.");
+        }
+        else
+        {
+            _logger.LogWarning($"Request from {Request.Headers["Origin"]} is not allowed.");
+        }
+
         var contacts = _repository.GetContacts(search);
 
         var contactsDto = _mapper.Map<IEnumerable<ContactDto>>(contacts);
