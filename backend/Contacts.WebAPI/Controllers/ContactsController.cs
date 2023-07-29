@@ -29,19 +29,11 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult<IEnumerable<ContactDto>> GetContacts([FromQuery] string? search)
     {
-        try
-        {
-            var contacts = _repository.GetContacts(search);
+        var contacts = _repository.GetContacts(search);
 
-            var contactsDto = _mapper.Map<IEnumerable<ContactDto>>(contacts);
+        var contactsDto = _mapper.Map<IEnumerable<ContactDto>>(contacts);
 
-            return Ok(contactsDto);
-        }
-        catch (Exception exception)
-        {
-            // TODO: log the exception
-            return Problem("Please try again later...", statusCode: 500);
-        }
+        return Ok(contactsDto);
     }
 
     // GET api/contacts/1

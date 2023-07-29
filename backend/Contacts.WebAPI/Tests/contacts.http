@@ -24,3 +24,12 @@ Content-Type: application/json
 
 GET {{baseUri}}/contacts/{{id}} HTTP/1.1
 Cache-Control: max-age=0, no-cache
+
+
+### Get images (show exception handling)
+
+GET {{baseUri}}/images HTTP/1.1
+Accept: application/json
+
+### Call non-existing endpoint
+GET {{baseUri}}/non-existing HTTP/1.1

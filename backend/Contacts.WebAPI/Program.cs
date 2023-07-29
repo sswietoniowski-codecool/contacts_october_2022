@@ -50,13 +50,23 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddResponseCaching();
 builder.Services.AddMemoryCache();
 
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    // should be added first
+    app.UseDeveloperExceptionPage();
+
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    // should be added first
+    app.UseExceptionHandler();
 }
 
 app.UseHttpsRedirection();
