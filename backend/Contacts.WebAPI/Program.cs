@@ -10,6 +10,7 @@ using Serilog;
 using Contacts.WebAPI.DTOs;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Contacts.WebAPI.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -159,6 +160,19 @@ app.MapGet("/api/contacts/{id:int}", Results<Ok<ContactDetailsDto>, NotFound, Ba
     var contactDto = mapper.Map<ContactDetailsDto>(contact);
 
     return TypedResults.Ok(contactDto);
+}).WithName("GetContact");
+
+app.MapPost("/api/contacts", CreatedAtRoute<ContactDto> ([FromBody] ContactForCreationDto contactForCreationDto, 
+    [FromServices] IContactsRepository repository,
+    [FromServices] IMapper mapper) =>
+{
+    var contact = mapper.Map<Contact>(contactForCreationDto);
+
+    repository.CreateContact(contact);
+
+    var contactDto = mapper.Map<ContactDto>(contact);
+
+    return TypedResults.CreatedAtRoute(contactDto, "GetContact", new { id = contact.Id });
 });
 
 app.Run();
