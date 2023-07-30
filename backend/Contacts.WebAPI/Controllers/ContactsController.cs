@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Text.Json;
+using AutoMapper;
 using Contacts.WebAPI.Configurations.Options;
 using Contacts.WebAPI.Domain;
 using Contacts.WebAPI.DTOs;
@@ -33,6 +34,7 @@ public class ContactsController : ControllerBase
     // GET api/contacts?lastName=Nowak
     // GET api/contacts?orderBy=lastName
     // GET api/contacts?orderBy=lastName&desc=true
+    // GET api/contacts?orderBy=lastName&desc=true&pageNumber=2&pageSize=2
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -40,7 +42,8 @@ public class ContactsController : ControllerBase
         [FromQuery] string? search,
         [FromQuery] string? lastName,
         [FromQuery] string? orderBy,
-        [FromQuery] bool? desc)
+        [FromQuery] bool? desc,
+        [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
         var origins = _corsConfiguration.Origins;
 
@@ -53,7 +56,19 @@ public class ContactsController : ControllerBase
             _logger.LogWarning($"Request from {Request.Headers["Origin"]} is not allowed.");
         }
 
-        var contacts = await _repository.GetContactsAsync(search, lastName, orderBy, desc);
+        if (pageNumber is null || pageNumber <= 0)
+        {
+            pageNumber = 1;
+        }
+
+        if (pageSize is null || pageSize <= 0 || pageSize > 10)
+        {
+            pageSize = 2;
+        }
+
+        var (contacts, paginationMetadata) = await _repository.GetContactsAsync(search, lastName, orderBy, desc, (int)pageNumber, (int)pageSize);
+
+        Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
 
         var contactsDto = _mapper.Map<IEnumerable<ContactDto>>(contacts);
 
