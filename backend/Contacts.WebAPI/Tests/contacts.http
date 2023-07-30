@@ -5,6 +5,9 @@
 
 GET {{baseUri}}/contacts HTTP/1.1
 
+### Search contacts
+GET {{baseUri}}/contacts?search=ski HTTP/1.1
+
 ### Get single contact
 
 GET {{baseUri}}/contacts/{{id}} HTTP/1.1

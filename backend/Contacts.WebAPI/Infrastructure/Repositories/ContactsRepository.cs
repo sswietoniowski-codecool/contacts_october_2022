@@ -18,7 +18,8 @@ public class ContactsRepository : IContactsRepository
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(c => c.LastName.Contains(search));
+            query = query.Where(c => c.LastName.Contains(search) || c.FirstName.Contains(search)
+                || c.Email.Contains(search));
         }
 
         return await query.ToListAsync();
