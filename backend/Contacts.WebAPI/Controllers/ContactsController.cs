@@ -33,7 +33,7 @@ public class ContactsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<IEnumerable<ContactDto>> GetContacts([FromQuery] string? search)
+    public async Task<ActionResult<IEnumerable<ContactDto>>> GetContacts([FromQuery] string? search)
     {
         var origins = _corsConfiguration.Origins;
 
@@ -46,7 +46,7 @@ public class ContactsController : ControllerBase
             _logger.LogWarning($"Request from {Request.Headers["Origin"]} is not allowed.");
         }
 
-        var contacts = _repository.GetContacts(search);
+        var contacts = await _repository.GetContactsAsync(search);
 
         var contactsDto = _mapper.Map<IEnumerable<ContactDto>>(contacts);
 
@@ -61,7 +61,7 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     //[ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
     [ResponseCache(CacheProfileName = "Any-60")]
-    public ActionResult<ContactDetailsDto> GetContact(int id)
+    public async Task<ActionResult<ContactDetailsDto>> GetContact(int id)
     {
         _logger.LogInformation($"Getting contact with id {id}.");
 
@@ -71,7 +71,7 @@ public class ContactsController : ControllerBase
         {
             _logger.LogWarning($"Contact with id {id} was not found in cache. Retrieving from database.");
 
-            var contact = _repository.GetContact(id);
+            var contact = await _repository.GetContactAsync(id);
 
             if (contact is not null)
             {
@@ -161,9 +161,9 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult PartiallyUpdateContact(int id, [FromBody] JsonPatchDocument<ContactForUpdateDto> patchDocument)
+    public async Task<IActionResult> PartiallyUpdateContact(int id, [FromBody] JsonPatchDocument<ContactForUpdateDto> patchDocument)
     {
-        var contact = _repository.GetContact(id);
+        var contact = await _repository.GetContactAsync(id);
 
         if (contact is null)
         {

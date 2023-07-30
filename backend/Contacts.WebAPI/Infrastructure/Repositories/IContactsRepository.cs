@@ -4,8 +4,8 @@ namespace Contacts.WebAPI.Infrastructure.Repositories;
 
 public interface IContactsRepository
 {
-    IEnumerable<Contact> GetContacts(string? search);
-    Contact? GetContact(int id);
+    Task<IEnumerable<Contact>> GetContactsAsync(string? search);
+    Task<Contact?> GetContactAsync(int id);
     void CreateContact(Contact contact);
     bool UpdateContact(Contact contact);
     bool DeleteContact(int id);
