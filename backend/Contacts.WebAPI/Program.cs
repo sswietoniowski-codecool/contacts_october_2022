@@ -135,8 +135,10 @@ app.UseResponseCaching();
 
 app.MapControllers();
 
+var contactsEndpoints = app.MapGroup("/api/contacts");
+
 // /api/contacts?search=ski
-app.MapGet("/api/contacts", Results<Ok<IEnumerable<ContactDto>>, BadRequest> ([FromQuery] string? search, IContactsRepository repository, IMapper mapper) =>
+contactsEndpoints.MapGet("", Results<Ok<IEnumerable<ContactDto>>, BadRequest> ([FromQuery] string? search, IContactsRepository repository, IMapper mapper) =>
 {
     var contacts = repository.GetContacts(search);
 
@@ -145,7 +147,7 @@ app.MapGet("/api/contacts", Results<Ok<IEnumerable<ContactDto>>, BadRequest> ([F
     return TypedResults.Ok(contactsDto);
 });
 
-app.MapGet("/api/contacts/{id:int}", Results<Ok<ContactDetailsDto>, NotFound, BadRequest>
+contactsEndpoints.MapGet("{id:int}", Results<Ok<ContactDetailsDto>, NotFound, BadRequest>
     ([FromRoute] int id, 
     [FromServices] IContactsRepository repository, 
     [FromServices] IMapper mapper) =>
@@ -162,7 +164,7 @@ app.MapGet("/api/contacts/{id:int}", Results<Ok<ContactDetailsDto>, NotFound, Ba
     return TypedResults.Ok(contactDto);
 }).WithName("GetContact");
 
-app.MapPost("/api/contacts", CreatedAtRoute<ContactDto> ([FromBody] ContactForCreationDto contactForCreationDto, 
+contactsEndpoints.MapPost("", CreatedAtRoute<ContactDto> ([FromBody] ContactForCreationDto contactForCreationDto, 
     [FromServices] IContactsRepository repository,
     [FromServices] IMapper mapper) =>
 {
