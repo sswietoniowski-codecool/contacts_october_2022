@@ -15,7 +15,7 @@ public class ContactsRepository : IContactsRepository
 
     public async Task<(IEnumerable<Contact>, PaginationMetadata)> GetContactsAsync(string? search, string? lastName,
         string? orderBy, bool? desc,
-        int pageSize, int pageNumber)
+        int pageNumber, int pageSize)
     {
         var query = _dbContext.Contacts.AsQueryable();
 
