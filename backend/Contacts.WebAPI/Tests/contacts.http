@@ -13,6 +13,18 @@ GET {{baseUri}}/contacts?search=ski HTTP/1.1
 
 GET {{baseUri}}/contacts?lastName=Nowak HTTP/1.1
 
+### Get contacts order by lastName
+
+GET {{baseUri}}/contacts?orderBy=lastName HTTP/1.1
+
+### Get contacts order by non-existing property
+
+GET {{baseUri}}/contacts?orderBy=FizzBuzz HTTP/1.1
+
+### Get contacts order by lastName descending
+
+GET {{baseUri}}/contacts?orderBy=lastName&desc=true HTTP/1.1
+
 ### Get single contact
 
 GET {{baseUri}}/contacts/{{id}} HTTP/1.1

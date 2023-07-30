@@ -31,12 +31,16 @@ public class ContactsController : ControllerBase
 
     // GET api/contacts?search=ski
     // GET api/contacts?lastName=Nowak
+    // GET api/contacts?orderBy=lastName
+    // GET api/contacts?orderBy=lastName&desc=true
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<ContactDto>>> GetContacts(
         [FromQuery] string? search,
-        [FromQuery] string? lastName)
+        [FromQuery] string? lastName,
+        [FromQuery] string? orderBy,
+        [FromQuery] bool? desc)
     {
         var origins = _corsConfiguration.Origins;
 
@@ -49,7 +53,7 @@ public class ContactsController : ControllerBase
             _logger.LogWarning($"Request from {Request.Headers["Origin"]} is not allowed.");
         }
 
-        var contacts = await _repository.GetContactsAsync(search, lastName);
+        var contacts = await _repository.GetContactsAsync(search, lastName, orderBy, desc);
 
         var contactsDto = _mapper.Map<IEnumerable<ContactDto>>(contacts);
 
