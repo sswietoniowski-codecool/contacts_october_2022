@@ -30,6 +30,11 @@ Content-Type: application/json
     "email": "jdoe@unknown.com"
 }
 
+### Delete contact
+
+@newId = 4
+DELETE {{baseUri}}/contacts/{{newId}} HTTP/1.1
+
 ### Get single contact (no caching)
 
 GET {{baseUri}}/contacts/{{id}} HTTP/1.1

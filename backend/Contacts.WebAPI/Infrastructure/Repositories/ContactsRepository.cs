@@ -56,11 +56,11 @@ public class ContactsRepository : IContactsRepository
         return true;
     }
 
-    public bool DeleteContact(int id)
+    public async Task<bool> DeleteContactAsync(int id)
     {
-        var contact = _dbContext
+        var contact = await _dbContext
             .Contacts
-            .FirstOrDefault(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contact is null)
         {
@@ -68,7 +68,7 @@ public class ContactsRepository : IContactsRepository
         }
 
         _dbContext.Contacts.Remove(contact);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
 
         return true;
     }
