@@ -6,7 +6,12 @@
 GET {{baseUri}}/contacts HTTP/1.1
 
 ### Search contacts
+
 GET {{baseUri}}/contacts?search=ski HTTP/1.1
+
+### Filter with lastName
+
+GET {{baseUri}}/contacts?lastName=Nowak HTTP/1.1
 
 ### Get single contact
 
