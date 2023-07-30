@@ -3,7 +3,7 @@
     "Contacts.WebAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "",
+      "launchUrl": "api/contacts",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

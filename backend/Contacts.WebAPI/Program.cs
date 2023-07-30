@@ -7,6 +7,9 @@ using System.Reflection;
 using System.Text.Json;
 using Contacts.WebAPI.Configurations.Options;
 using Serilog;
+using Contacts.WebAPI.DTOs;
+using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -131,6 +134,31 @@ app.UseResponseCaching();
 
 app.MapControllers();
 
-app.MapGet("/api", () => "Hello World!");
+// /api/contacts?search=ski
+app.MapGet("/api/contacts", Results<Ok<IEnumerable<ContactDto>>, BadRequest> ([FromQuery] string? search, IContactsRepository repository, IMapper mapper) =>
+{
+    var contacts = repository.GetContacts(search);
+
+    var contactsDto = mapper.Map<IEnumerable<ContactDto>>(contacts);
+
+    return TypedResults.Ok(contactsDto);
+});
+
+app.MapGet("/api/contacts/{id:int}", Results<Ok<ContactDetailsDto>, NotFound, BadRequest>
+    ([FromRoute] int id, 
+    [FromServices] IContactsRepository repository, 
+    [FromServices] IMapper mapper) =>
+{
+    var contact = repository.GetContact(id);
+
+    if (contact is null)
+    {
+        return TypedResults.NotFound();
+    }
+
+    var contactDto = mapper.Map<ContactDetailsDto>(contact);
+
+    return TypedResults.Ok(contactDto);
+});
 
 app.Run();
