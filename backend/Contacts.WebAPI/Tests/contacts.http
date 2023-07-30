@@ -32,8 +32,25 @@ Content-Type: application/json
 
 ### Delete contact
 
-@newId = 4
+@newId = 5
 DELETE {{baseUri}}/contacts/{{newId}} HTTP/1.1
+
+### Patch contact
+PATCH {{baseUri}}/contacts/{{id}} HTTP/1.1
+Content-Type: application/json
+
+[
+    {
+        "op": "replace",
+        "path": "/lastName",
+        "value": "Kowalski"
+    },
+    {
+        "op": "replace",
+        "path": "/firstName",
+        "value": "Jan"
+    }
+]
 
 ### Get single contact (no caching)
 
