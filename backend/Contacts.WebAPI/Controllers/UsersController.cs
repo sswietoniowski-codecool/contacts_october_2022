@@ -24,6 +24,7 @@ public class UsersController : ControllerBase
 
     [HttpOptions("register")]
     [ResponseCache(CacheProfileName = "NoCache")]
+    [AllowAnonymous]
     public Task<IActionResult> Register()
     {
         throw new NotImplementedException();
@@ -31,6 +32,7 @@ public class UsersController : ControllerBase
 
     [HttpOptions("login-cookie")]
     [ResponseCache(CacheProfileName = "NoCache")]
+    [AllowAnonymous]
     public Task<IActionResult> LoginCookie()
     {
         throw new NotImplementedException();
@@ -45,6 +47,7 @@ public class UsersController : ControllerBase
 
     [HttpOptions("access-denied")]
     [ResponseCache(CacheProfileName = "NoCache")]
+    [AllowAnonymous]
     public IActionResult AccessDenied()
     {
         return Forbid();
