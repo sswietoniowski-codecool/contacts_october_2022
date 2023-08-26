@@ -176,3 +176,28 @@ Content-Type: application/json
 
 GET {{baseUri}}/contacts HTTP/1.1
 Authorization: Bearer {{token}}
+
+### Login as non-admin user
+OPTIONS {{baseUri}}/users/login-cookie HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User2",
+    "password": "Very$ecureP@ssw0rd"
+}
+
+### Try deleting a contact (authenticated but not admin)
+DELETE {{baseUri}}/contacts/{{id}} HTTP/1.1
+
+### Login as admin user
+OPTIONS {{baseUri}}/users/login-cookie HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "password": "Very$ecureP@ssw0rd"
+}
+
+### Try deleting a contact (authenticated but not admin)
+DELETE {{baseUri}}/contacts/{{id}} HTTP/1.1
+
