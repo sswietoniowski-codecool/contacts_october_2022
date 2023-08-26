@@ -90,4 +90,7 @@ app.UseResponseCaching();
 
 app.MapControllers();
 
+// seed database
+app.InitializeDatabase();
+
 app.Run();

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Contacts.WebAPI.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace Contacts.WebAPI.Configurations.Extensions;
 
@@ -37,6 +39,17 @@ public static class WebApplicationExtensions
                 });
             });
         }
+
+        return app;
+    }
+
+    public static WebApplication InitializeDatabase(this WebApplication app)
+    {
+        // recreate & migrate the database on each run, for demo purposes
+        using var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ContactsDbContext>();
+        dbContext.Database.EnsureDeleted();
+        dbContext.Database.Migrate();
 
         return app;
     }
