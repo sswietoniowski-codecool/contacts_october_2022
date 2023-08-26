@@ -162,3 +162,23 @@ Content-Type: application/json
 ### Logout using Cookie
 OPTIONS {{baseUri}}/users/logout-cookie HTTP/1.1
 
+### Login using JWT tokens
+OPTIONS {{baseUri}}/users/login-jwt HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "password": "Very$ecureP@ssw0rd"
+}
+
+### Get contacts using JWT tokens
+@token = PUT_HERE_THE_TOKEN
+
+GET {{baseUri}}/contacts HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "password": "Very$ecureP@ssw0rd"
+}
