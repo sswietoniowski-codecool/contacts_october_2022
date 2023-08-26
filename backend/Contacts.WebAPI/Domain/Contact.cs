@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Contacts.WebAPI.Domain;
 
@@ -15,4 +16,7 @@ public class Contact
     [MaxLength(128)]
     public string Email { get; set; } = string.Empty;
     public List<Phone> Phones { get; set; } = new ();
+    public User? User { get; set; }
+    [ForeignKey(nameof(User))]
+    public string? UserId { get; set; }
 }
