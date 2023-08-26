@@ -4,6 +4,7 @@ using Contacts.WebAPI.Configurations.Options;
 using Contacts.WebAPI.Domain;
 using Contacts.WebAPI.DTOs;
 using Contacts.WebAPI.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,6 +14,7 @@ namespace Contacts.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/contacts")]
+[Authorize]
 public class ContactsController : ControllerBase
 {
     private readonly IContactsRepository _repository;

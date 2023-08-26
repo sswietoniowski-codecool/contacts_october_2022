@@ -87,6 +87,8 @@ builder.Services.AddAuthentication()
         options.AccessDeniedPath = "/api/users/access-denied";
     });
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
