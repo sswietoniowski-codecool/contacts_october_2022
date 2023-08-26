@@ -2,6 +2,9 @@ using Contacts.WebAPI.Configurations.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Reflection;
+using Contacts.WebAPI.Domain;
+using Contacts.WebAPI.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +51,21 @@ builder.Host.UseSerilog((context, services, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration);
     configuration.ReadFrom.Services(services);
 }, preserveStaticLogger: true);
+
+// add Identity service
+builder.Services.AddIdentity<User, Role>(options =>
+{
+    options.Password.RequiredLength = 12;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = true;
+})
+    .AddEntityFrameworkStores<ContactsDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 

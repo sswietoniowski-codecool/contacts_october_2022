@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Contacts.WebAPI.Infrastructure;
 
-public class ContactsDbContext : IdentityDbContext<User>
+public class ContactsDbContext : IdentityDbContext<User, Role, string>
 {
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Phone> Phones => Set<Phone>();
+
+    public override DbSet<Role> Roles => Set<Role>();
 
     public ContactsDbContext(DbContextOptions<ContactsDbContext> options) : base(options)
     {
@@ -16,6 +18,18 @@ public class ContactsDbContext : IdentityDbContext<User>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder); // required by IdentityDbContext
+
+        modelBuilder.Entity<Role>().HasData(new List<Role>
+        {
+            new Role
+            {
+                Id = Guid.NewGuid().ToString(), Name = "Admin", NormalizedName = "ADMIN"
+            },
+            new Role
+            {
+                Id = Guid.NewGuid().ToString(), Name = "User", NormalizedName = "USER"
+            }
+        });
 
         modelBuilder.Entity<Contact>().HasData(new List<Contact>
         {
