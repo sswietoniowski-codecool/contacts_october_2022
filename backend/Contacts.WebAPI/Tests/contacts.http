@@ -88,3 +88,46 @@ Accept: application/json
 
 ### Call non-existing endpoint
 GET {{baseUri}}/non-existing HTTP/1.1
+
+### Register a new user (missing users email & roles)
+OPTIONS {{baseUri}}/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "password": "P@ssw0rd",
+    "roles": []
+}
+
+### Register a new user (password doesn't match the requirements)
+OPTIONS {{baseUri}}/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "email": "user1@unknown.com",
+    "password": "P@ssw0rd",
+    "roles": [ "admin" ]
+}
+
+### Register a new user
+OPTIONS {{baseUri}}/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "email": "user1@unknown.com",
+    "password": "Very$ecureP@ssw0rd",
+    "roles": [ "User", "Admin" ]
+}
+
+### Register another user
+OPTIONS {{baseUri}}/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User2",
+    "email": "user2@unknown.com",
+    "password": "Very$ecureP@ssw0rd",
+    "roles": [ "User" ]
+}

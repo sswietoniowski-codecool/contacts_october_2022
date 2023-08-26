@@ -1,4 +1,5 @@
 ﻿using Contacts.WebAPI.Domain;
+using Contacts.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +26,41 @@ public class UsersController : ControllerBase
     [HttpOptions("register")]
     [ResponseCache(CacheProfileName = "NoCache")]
     [AllowAnonymous]
-    public Task<IActionResult> Register()
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register([FromBody] UserForRegistrationDto userForRegistrationDto)
     {
-        throw new NotImplementedException();
+        var user = new User();
+        user.UserName = userForRegistrationDto.UserName;
+        user.Email = userForRegistrationDto.Email;
+
+        var result = await _userManager.CreateAsync(user, userForRegistrationDto.Password);
+
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning($"User creation for {userForRegistrationDto.UserName} failed.");
+
+            var errors = result.Errors.Select(e => e.Description);
+
+            return BadRequest(new {Errors = errors});
+        }
+
+        _logger.LogInformation($"User {userForRegistrationDto.UserName} created.");
+
+        result = await _userManager.AddToRolesAsync(user, userForRegistrationDto.Roles);
+
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning($"User {userForRegistrationDto.UserName} could not be assigned to roles.");
+
+            var errors = result.Errors.Select(e => e.Description);
+
+            return BadRequest(new {Errors = errors});
+        }
+
+        _logger.LogInformation($"User {userForRegistrationDto.UserName} assigned to roles.");
+
+        return Accepted($"User '{user.UserName}' has been created");
     }
 
     [HttpOptions("login-cookie")]
