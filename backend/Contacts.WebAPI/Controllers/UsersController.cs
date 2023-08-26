@@ -127,9 +127,11 @@ public class UsersController : ControllerBase
 
     [HttpOptions("logout-cookie")]
     [ResponseCache(CacheProfileName = "NoCache")]
-    public Task<IActionResult> LogoutCookie()
+    public async Task<IActionResult> LogoutCookie()
     {
-        throw new NotImplementedException();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return Accepted();
     }
 
     [HttpOptions("access-denied")]
