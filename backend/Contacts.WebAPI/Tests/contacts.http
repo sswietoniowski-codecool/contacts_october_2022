@@ -131,3 +131,30 @@ Content-Type: application/json
     "password": "Very$ecureP@ssw0rd",
     "roles": [ "User" ]
 }
+
+### Login using Cookie (wrong name)
+OPTIONS {{baseUri}}/users/login-cookie HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User3",
+    "password": "Very$ecureP@ssw0rd"
+}
+
+### Login using Cookie (wrong password)
+OPTIONS {{baseUri}}/users/login-cookie HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "password": "Very$ecureP@ssw0rd?"
+}
+
+### Login using Cookie
+OPTIONS {{baseUri}}/users/login-cookie HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "User1",
+    "password": "Very$ecureP@ssw0rd"
+}

@@ -47,6 +47,8 @@ public class ContactsController : ControllerBase
         [FromQuery] bool? desc,
         [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
+        _logger.LogInformation("Logged in as user: {user}", User);
+
         var origins = _corsConfiguration.Origins;
 
         if (origins.Contains(Request.Headers["Origin"].ToString()))

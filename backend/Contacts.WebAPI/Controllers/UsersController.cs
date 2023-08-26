@@ -1,5 +1,8 @@
-﻿using Contacts.WebAPI.Domain;
+﻿using System.Security.Claims;
+using Contacts.WebAPI.Domain;
 using Contacts.WebAPI.DTOs;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -73,9 +76,53 @@ public class UsersController : ControllerBase
     [HttpOptions("login-cookie")]
     [ResponseCache(CacheProfileName = "NoCache")]
     [AllowAnonymous]
-    public Task<IActionResult> LoginCookie()
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> LoginCookie([FromBody] UserForLoginWithCookieDto userForLoginDto)
     {
-        throw new NotImplementedException();
+        var user = await _userManager.FindByNameAsync(userForLoginDto.UserName);
+
+        if (user is null)
+        {
+            _logger.LogWarning("User {userName} not found.", userForLoginDto.UserName);
+
+            return Unauthorized(userForLoginDto);
+        }
+
+        var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
+
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning("User {userName} login failed.", userForLoginDto.UserName);
+
+            return Unauthorized(userForLoginDto);
+        }
+
+        _logger.LogInformation("User {userName} logged in.", userForLoginDto.UserName);
+
+        var claims = new List<Claim>();
+
+        claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+        claims.Add(new Claim(ClaimTypes.Name, user.UserName!));
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = userForLoginDto.RememberMe,
+            });
+
+        return Accepted();
     }
 
     [HttpOptions("logout-cookie")]

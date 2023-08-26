@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,7 +89,14 @@ builder.Services.AddAuthentication()
         options.AccessDeniedPath = "/api/users/access-denied";
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
+               CookieAuthenticationDefaults.AuthenticationScheme);
+    defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
+
+    options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+});
 
 var app = builder.Build();
 
@@ -104,6 +113,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// app.UseAuthentication(); // not needed in .NET 7, part of UseAuthorization()
 app.UseAuthorization();
 
 app.UseCors();
