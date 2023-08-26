@@ -1,11 +1,10 @@
 using Contacts.WebAPI.Configurations.Extensions;
+using Contacts.WebAPI.Domain;
+using Contacts.WebAPI.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Reflection;
-using Contacts.WebAPI.Domain;
-using Contacts.WebAPI.Infrastructure;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +32,7 @@ builder.Services.AddControllers(configure =>
             Duration = 60
         });
     configure.CacheProfiles.Add("NoCache", new CacheProfile { NoStore = true });
+    //configure.Filters.Add(new AuthorizeFilter());
 }).AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
