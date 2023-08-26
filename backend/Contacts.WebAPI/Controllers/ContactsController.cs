@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Claims;
+using System.Text.Json;
 using AutoMapper;
 using Contacts.WebAPI.Configurations.Options;
 using Contacts.WebAPI.Domain;
@@ -151,6 +152,10 @@ public class ContactsController : ControllerBase
     {
         var contact = _mapper.Map<Contact>(contactForUpdateDto);
         contact.Id = id;
+
+        // get the user id from the claims & save it to the contact
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        contact.UserId = userIdClaim!;
 
         var success = await _repository.UpdateContactAsync(contact);
 

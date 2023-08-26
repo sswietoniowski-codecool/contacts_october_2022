@@ -72,7 +72,7 @@ public class ContactsRepository : IContactsRepository
     {
         var contactFromDb = await _dbContext
             .Contacts
-            .FirstOrDefaultAsync(c => c.Id == contact.Id);
+            .FirstOrDefaultAsync(c => c.Id == contact.Id && c.UserId == contact.UserId);
 
         if (contactFromDb is null)
         {
