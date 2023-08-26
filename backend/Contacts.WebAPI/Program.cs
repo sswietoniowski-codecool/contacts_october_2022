@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Reflection;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +76,7 @@ builder.Services.AddIdentity<User, Role>(options =>
 builder.Services.AddAuthentication()
     .AddCookie(options =>
     {
-        options.Cookie.Name = "ContactApp.Cookies";
+        options.Cookie.Name = builder.Configuration["Authentication:Cookie:Name"];
 
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Strict;
@@ -87,12 +90,25 @@ builder.Services.AddAuthentication()
         options.LoginPath = "/api/users/login-cookie";
         options.LogoutPath = "/api/users/logout-cookie";
         options.AccessDeniedPath = "/api/users/access-denied";
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!)),
+        };
     });
 
 builder.Services.AddAuthorization(options =>
 {
     var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
-               CookieAuthenticationDefaults.AuthenticationScheme);
+               CookieAuthenticationDefaults.AuthenticationScheme,
+               JwtBearerDefaults.AuthenticationScheme);
     defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
 
     options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
