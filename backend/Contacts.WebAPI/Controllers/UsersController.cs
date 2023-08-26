@@ -23,6 +23,21 @@ public class UsersController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    private IActionResult ReportErrors(IdentityResult result, User user)
+    {
+        var errors = result.Errors.Select(e => e.Description);
+
+        _logger.LogWarning("User {userName} ({email}) creation failed. Errors: {errors}", user.UserName,
+            user.Email, errors);
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(error.Code, error.Description);
+        }
+
+        return BadRequest(ModelState);
+    }
+
     [HttpOptions("register")]
     [ResponseCache(CacheProfileName = "NoCache")]
     [AllowAnonymous]
@@ -38,11 +53,7 @@ public class UsersController : ControllerBase
 
         if (!result.Succeeded)
         {
-            _logger.LogWarning($"User creation for {userForRegistrationDto.UserName} failed.");
-
-            var errors = result.Errors.Select(e => e.Description);
-
-            return BadRequest(new {Errors = errors});
+            return ReportErrors(result, user);
         }
 
         _logger.LogInformation($"User {userForRegistrationDto.UserName} created.");
@@ -51,11 +62,7 @@ public class UsersController : ControllerBase
 
         if (!result.Succeeded)
         {
-            _logger.LogWarning($"User {userForRegistrationDto.UserName} could not be assigned to roles.");
-
-            var errors = result.Errors.Select(e => e.Description);
-
-            return BadRequest(new {Errors = errors});
+            return ReportErrors(result, user);
         }
 
         _logger.LogInformation($"User {userForRegistrationDto.UserName} assigned to roles.");
