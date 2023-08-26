@@ -4,6 +4,7 @@ using Serilog;
 using System.Reflection;
 using Contacts.WebAPI.Domain;
 using Contacts.WebAPI.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,6 +67,25 @@ builder.Services.AddIdentity<User, Role>(options =>
 })
     .AddEntityFrameworkStores<ContactsDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication()
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "ContactApp.Cookies";
+
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+
+        options.LoginPath = "/api/users/login-cookie";
+        options.LogoutPath = "/api/users/logout-cookie";
+        options.AccessDeniedPath = "/api/users/access-denied";
+    });
 
 var app = builder.Build();
 
