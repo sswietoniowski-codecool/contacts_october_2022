@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Contacts.WebAPI.Domain;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Contacts.WebAPI.Controllers;
@@ -8,6 +10,18 @@ namespace Contacts.WebAPI.Controllers;
 [Authorize]
 public class UsersController : ControllerBase
 {
+    private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
+    private readonly ILogger<UsersController> _logger;
+
+    public UsersController(UserManager<User> userManager, SignInManager<User> signInManager,
+        ILogger<UsersController> logger)
+    {
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
     [HttpOptions("register")]
     public Task<IActionResult> Register()
     {
