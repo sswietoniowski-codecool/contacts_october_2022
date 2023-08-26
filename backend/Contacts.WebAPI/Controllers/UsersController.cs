@@ -23,24 +23,28 @@ public class UsersController : ControllerBase
     }
 
     [HttpOptions("register")]
+    [ResponseCache(CacheProfileName = "NoCache")]
     public Task<IActionResult> Register()
     {
         throw new NotImplementedException();
     }
 
     [HttpOptions("login-cookie")]
+    [ResponseCache(CacheProfileName = "NoCache")]
     public Task<IActionResult> LoginCookie()
     {
         throw new NotImplementedException();
     }
 
     [HttpOptions("logout-cookie")]
+    [ResponseCache(CacheProfileName = "NoCache")]
     public Task<IActionResult> LogoutCookie()
     {
         throw new NotImplementedException();
     }
 
     [HttpOptions("access-denied")]
+    [ResponseCache(CacheProfileName = "NoCache")]
     public IActionResult AccessDenied()
     {
         return Forbid();
