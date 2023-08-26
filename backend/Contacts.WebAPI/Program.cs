@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -119,6 +120,13 @@ builder.Services.AddAuthorization(options =>
     defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
 
     options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+
+    options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.Role, "Admin");
+    });
 });
 
 var app = builder.Build();
