@@ -120,6 +120,8 @@ public class UsersController : ControllerBase
             new AuthenticationProperties
             {
                 IsPersistent = userForLoginDto.RememberMe,
+                AllowRefresh = true,
+                ExpiresUtc = DateTime.UtcNow.AddDays(1) // 1 days
             });
 
         return Accepted();
