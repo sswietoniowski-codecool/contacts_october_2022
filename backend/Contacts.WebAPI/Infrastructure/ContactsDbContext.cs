@@ -1,9 +1,10 @@
 ﻿using Contacts.WebAPI.Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Contacts.WebAPI.Infrastructure;
 
-public class ContactsDbContext : DbContext
+public class ContactsDbContext : IdentityDbContext<User>
 {
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Phone> Phones => Set<Phone>();
@@ -14,6 +15,8 @@ public class ContactsDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder); // required by IdentityDbContext
+
         modelBuilder.Entity<Contact>().HasData(new List<Contact>
         {
             new Contact
