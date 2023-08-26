@@ -1,12 +1,10 @@
-using System.Net;
-using Contacts.WebAPI.Infrastructure;
-using Contacts.WebAPI.Infrastructure.Repositories;
+using Contacts.WebAPI.Configurations.Extensions;
+using Contacts.WebAPI.Configurations.Options;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Serilog;
+using System.Net;
 using System.Reflection;
 using System.Text.Json;
-using Contacts.WebAPI.Configurations.Options;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,40 +17,11 @@ Log.Logger = new LoggerConfiguration()
 
 // Add services to the container.
 
-builder.Services.AddDbContext<ContactsDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ContactsDb"));
-    options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
-});
-
-builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
+builder.AddPersistence();
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-//builder.Services.Configure<CorsConfiguration>(builder.Configuration.GetSection("Cors"));
-
-builder.Services.AddOptions<CorsConfiguration>()
-    .Bind(builder.Configuration.GetSection("Cors"))
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policyBuilder =>
-    {
-        //var origins = builder.Configuration.GetSection("Cors:Origins")
-        //    .Get<string[]>()!;
-
-        var origins = new List<string>();
-
-        builder.Configuration.Bind("Cors:Origins", origins);
-
-        policyBuilder
-            .WithOrigins(origins.ToArray())
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
+builder.AddCors();
 
 builder.Services.AddControllers(configure =>
 {
