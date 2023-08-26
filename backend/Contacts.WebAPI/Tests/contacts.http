@@ -176,9 +176,3 @@ Content-Type: application/json
 
 GET {{baseUri}}/contacts HTTP/1.1
 Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-    "username": "User1",
-    "password": "Very$ecureP@ssw0rd"
-}

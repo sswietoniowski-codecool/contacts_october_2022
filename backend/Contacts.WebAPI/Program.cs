@@ -1,16 +1,16 @@
 using Contacts.WebAPI.Configurations.Extensions;
+using Contacts.WebAPI.Configurations.Options;
 using Contacts.WebAPI.Domain;
 using Contacts.WebAPI.Infrastructure;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Serilog;
-using System.Reflection;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Contacts.WebAPI.Configurations.Options;
+using Serilog;
+using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,11 +101,13 @@ builder.Services.AddAuthentication()
         options.TokenValidationParameters = new()
         {
             ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
+
+            ValidateAudience = true,
             ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!)),
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!))
         };
     });
 
