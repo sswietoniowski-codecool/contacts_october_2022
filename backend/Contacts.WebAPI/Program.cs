@@ -1,10 +1,7 @@
 using Contacts.WebAPI.Configurations.Extensions;
-using Contacts.WebAPI.Configurations.Options;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using System.Net;
 using System.Reflection;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,39 +52,14 @@ builder.Host.UseSerilog((context, services, configuration) =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// should be added first
+app.UseErrorHandling();
+
 if (app.Environment.IsDevelopment())
 {
-    // should be added first
-    app.UseDeveloperExceptionPage();
-
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-else
-{
-    // should be added first
-    app.UseExceptionHandler(applicationBuilder =>
-    {
-        applicationBuilder.Run(async context =>
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
-
-            var problemDetails = new ProblemDetails
-            {
-                Title = "An unexpected error occurred!",
-                Status = context.Response.StatusCode,
-                Detail = "Please contact your system administrator!"
-            };
-
-            var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
-
-            // TODO: log the exception
-
-            //await context.Response.WriteAsync("An unexpected fault happened. Try again later.");
-            await context.Response.WriteAsync(problemDetailsJson);
-        });
-    });
 }
 
 app.UseHttpsRedirection();
